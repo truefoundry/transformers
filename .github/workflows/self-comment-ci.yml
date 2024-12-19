@@ -112,7 +112,7 @@ jobs:
         if: ${{ env.models != '[]' || env.quantizations != '[]' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BODY: "This comment contains run-slow, running the specified jobs:\n\nmodels: ${{ env.models }}\nquantizations: ${{ env.quantizations }} ..."
+          BODY: "This comment contains run-slow, running the specified jobs:\n\nmodels: ${{ env.models }}\nquantizations: ${{ env.quantizations }}"
         run: |
           gh api \
             --method POST \
@@ -332,21 +332,21 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      STATUS_OK: ${{ contains(fromJSON('["skipped", "success"]'), needs.run_models_gpu.result) && contains(fromJSON('["skipped", "success"]'), needs.run_quantization_torch_gpu.result) }}
     steps:
       - name: Get `run_models_gpu` job status
         run: |
           echo "${{ needs.run_models_gpu.result }}"
-          if [ "${{ needs.run_models_gpu.result }}" = "cancelled" ]; then
-            echo "STATUS=failure" >> $GITHUB_ENV
-          elif [ "${{ needs.run_models_gpu.result }}" = "skipped" ]; then
+          echo "${{ needs.run_quantization_torch_gpu.result }}"
+          echo $STATUS_OK
+          if [ "$STATUS_OK" = "true" ]; then
             echo "STATUS=success" >> $GITHUB_ENV
           else
-            echo "STATUS=${{ needs.run_models_gpu.result }}" >> $GITHUB_ENV
+            echo "STATUS=failure" >> $GITHUB_ENV
           fi
 
       - name: Update PR commit statuses
         run: |
-          echo "${{ needs.run_models_gpu.result }}"
           echo "${{ env.STATUS }}"
           gh api \
             --method POST \
