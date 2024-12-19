@@ -143,7 +143,7 @@ def check_model_names(model_name: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--message", type=str, default="", help="The content of a comment.")
-    parser.add_argument("--quantization", action='store_true', help="If we collect quantization tests")
+    parser.add_argument("--quantization", action="store_true", help="If we collect quantization tests")
     args = parser.parse_args()
 
     new_model = get_new_model()
